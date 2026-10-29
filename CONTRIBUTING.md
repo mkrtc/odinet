@@ -15,6 +15,6 @@ bun run build
 
 Load `dist` as an unpacked extension in a Chromium browser. When changing request capture, test a normal response, a redirect and a failed request. Include the browser name and version in bug reports.
 
-Keep host permissions and data collection as narrow as the feature allows. Do not add network uploads, persistent storage of captured traffic, or collection of request or response bodies without an explicit design discussion. Never include real cookies, tokens or private URLs in issues or test fixtures.
+Keep host permissions and data collection as narrow as the feature allows. The popup uses background metadata, while the DevTools adapter retains HAR data in panel memory and loads response bodies on demand. Discuss new persistent storage or network uploads before implementing them. Never include real cookies, tokens or private URLs in issues or test fixtures. Add columns in `src/network/columns.ts` and detail views in `src/ui/request-details.ts`; keep data acquisition separate from rendering.
 
 By submitting a contribution, you agree that it is licensed under the project's [MIT License](LICENSE).

@@ -11,9 +11,6 @@ const list = requiredElement<HTMLOListElement>("#requests");
 const statusMessage = requiredElement<HTMLParagraphElement>("#message");
 const clearButton = requiredElement<HTMLButtonElement>("#clear");
 const locale = chrome.i18n.getUILanguage();
-const inspectedTabId = document.body.dataset.view === "devtools"
-  ? chrome.devtools.inspectedWindow.tabId
-  : undefined;
 
 function localized(key: string, substitution?: string): string {
   return chrome.i18n.getMessage(key, substitution) || key;
@@ -21,9 +18,7 @@ function localized(key: string, substitution?: string): string {
 
 document.documentElement.lang = isRussianLocale(locale) ? "ru" : "en";
 document.title = localized("extensionName");
-requiredElement<HTMLParagraphElement>("#subtitle").textContent = localized(
-  inspectedTabId === undefined ? "popupSubtitle" : "panelSubtitle",
-);
+requiredElement<HTMLParagraphElement>("#subtitle").textContent = localized("popupSubtitle");
 clearButton.textContent = localized("clear");
 list.setAttribute("aria-label", localized("requestListLabel"));
 statusMessage.textContent = localized("loading");
@@ -63,7 +58,7 @@ function render(records: readonly RequestRecord[]): void {
   list.replaceChildren(fragment);
   const count = records.length;
   statusMessage.textContent = count === 0
-    ? localized(inspectedTabId === undefined ? "noRequests" : "noTabRequests")
+    ? localized("noRequests")
     : localized(requestCountMessageKey(count, locale), String(count));
 }
 
@@ -74,7 +69,7 @@ async function refresh(): Promise<void> {
     const stored = await chrome.storage.session.get(REQUESTS_KEY);
     const requests = readRequests(stored[REQUESTS_KEY]);
     if (readId === latestRead) {
-      render(inspectedTabId === undefined ? requests : requests.filter((request) => request.tabId === inspectedTabId));
+      render(requests);
     }
   } catch (error) {
     if (readId === latestRead) statusMessage.textContent = localized("readError");
@@ -94,7 +89,6 @@ clearButton.addEventListener("click", async () => {
   try {
     const result: unknown = await chrome.runtime.sendMessage({
       type: "clear-requests",
-      ...(inspectedTabId === undefined ? {} : { tabId: inspectedTabId }),
     });
     if (typeof result !== "object" || result === null || (result as { ok?: unknown }).ok !== true) {
       throw new Error("Background worker did not confirm the clear operation");

@@ -4,20 +4,50 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Odinet</title>
-    <link rel="stylesheet" href="request-log.css" />
-    <script type="module" src="request-log.js"></script>
+    <link rel="stylesheet" href="network-panel.css" />
+    <script type="module" src="panel.js"></script>
   </head>
-  <body data-view="devtools">
-    <header>
-      <div>
-        <h1>Odinet</h1>
-        <p id="subtitle">HTTP requests for the inspected tab</p>
-      </div>
-      <button id="clear" type="button">Clear</button>
-    </header>
-    <main>
-      <p id="message" role="status">Loading…</p>
-      <ol id="requests" aria-label="Recent HTTP requests"></ol>
+  <body>
+    <div id="network-toolbar" class="toolbar" role="toolbar" aria-label="Network">
+      <button id="record" class="icon-button record-button" type="button" aria-pressed="true"><span aria-hidden="true"></span></button>
+      <button id="clear" class="icon-button" type="button"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="m4 12 8-8"/></svg></button>
+      <span class="toolbar-divider" aria-hidden="true"></span>
+      <label class="preserve-label"><input id="preserve" type="checkbox" /><span data-i18n="preserveLog">Preserve log</span></label>
+      <details id="columns-menu" class="columns-menu">
+        <summary id="columns-toggle" class="columns-toggle" data-i18n="columns">Columns</summary>
+        <div id="column-options" class="column-options"></div>
+      </details>
+    </div>
+    <div class="filterbar">
+      <input id="filter" type="search" autocomplete="off" spellcheck="false" />
+      <div id="type-filters" class="type-filters" role="group"></div>
+    </div>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <main id="workspace" class="workspace">
+      <section id="request-list" class="request-list">
+        <div id="table-scroll" class="table-scroll">
+          <table id="network-table" class="network-table" role="grid">
+            <colgroup id="column-widths"></colgroup>
+            <thead><tr id="network-columns"></tr></thead>
+            <tbody id="network-rows"></tbody>
+          </table>
+        </div>
+        <div id="empty-state" class="empty-state">
+          <p id="empty-title"></p>
+          <p id="empty-description"></p>
+          <button id="reload" type="button" data-i18n="reloadPage">Reload page</button>
+        </div>
+      </section>
+      <div id="splitter" class="splitter" role="separator" tabindex="0" aria-orientation="vertical" aria-controls="request-details" aria-valuemin="25" aria-valuemax="75" aria-valuenow="42" hidden></div>
+      <section id="request-details" class="request-details" hidden>
+        <div class="detail-toolbar">
+          <button id="close-details" class="icon-button close-details" type="button"><span aria-hidden="true">×</span></button>
+          <div id="detail-tabs" class="detail-tabs" role="tablist"></div>
+        </div>
+        <div id="selected-request" class="selected-request"></div>
+        <div id="detail-content" class="detail-content" role="tabpanel" tabindex="0"></div>
+      </section>
     </main>
+    <footer id="summary" class="summary" role="status" aria-live="polite"></footer>
   </body>
 </html>
