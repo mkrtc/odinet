@@ -1,0 +1,26 @@
+{
+  "name": "odinet",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "author": "Mkrtchian Sarkis",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkrtc/odinet.git"
+  },
+  "packageManager": "bun@1.4.0",
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "check": "bunx tsc --noEmit",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.3.7",
+    "@types/bun": "1.4.4",
+    "typescript": "7.0.2"
+  }
+}

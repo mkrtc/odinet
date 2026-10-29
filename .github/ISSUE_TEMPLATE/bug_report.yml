@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a reproducible problem in Odinet
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Remove tokens, cookies and other private data from URLs before posting. Report vulnerabilities privately according to SECURITY.md."
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: "Helium 0.19.4.1 / Chromium 155"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true

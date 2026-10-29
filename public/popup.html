@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Odinet</title>
+    <link rel="stylesheet" href="popup.css" />
+    <script type="module" src="popup.js"></script>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Odinet</h1>
+        <p>HTTP-запросы текущей сессии</p>
+      </div>
+      <button id="clear" type="button">Очистить</button>
+    </header>
+    <main>
+      <p id="message" role="status">Загрузка…</p>
+      <ol id="requests" aria-label="Последние HTTP-запросы"></ol>
+    </main>
+  </body>
+</html>
