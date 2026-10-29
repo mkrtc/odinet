@@ -115,7 +115,9 @@ function renderDetails(): void {
   detailAbort = new AbortController();
   content.replaceChildren(tab.render({ entry, readContent: (id) => source.readContent(id), signal: detailAbort.signal }));
   const name = required<HTMLElement>("#selected-request");
-  name.textContent = entry.name;
+  const method = element("span", "http-method", entry.method);
+  method.dataset.method = entry.method;
+  name.replaceChildren(method, element("span", "selected-name", entry.name));
   name.title = entry.url;
   content.setAttribute("aria-labelledby", `detail-tab-${tab.id}`);
   for (const node of tabs.querySelectorAll<HTMLButtonElement>("button")) {
@@ -256,10 +258,10 @@ function render(): void {
         cell.hidden = hiddenColumns.has(descriptor.id) || (selectedId !== null && !descriptor.compact);
         const value = descriptor.value(entry);
         cell.title = descriptor.id === "name" ? entry.url : descriptor.id === "initiator" ? entry.initiator : descriptor.id === "status" && entry.error ? entry.error : value;
-        if (descriptor.id === "name") {
-          const icon = element("span", `resource-icon resource-${entry.group}`);
-          icon.setAttribute("aria-hidden", "true");
-          cell.append(icon, document.createTextNode(value));
+        if (descriptor.id === "method") {
+          const method = element("span", "http-method", value);
+          method.dataset.method = value;
+          cell.append(method);
         } else if (descriptor.id === "waterfall") {
           const track = element("div", "waterfall-track");
           const bars = [];

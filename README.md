@@ -6,7 +6,7 @@
 
 ![Odinet request table in Helium DevTools](docs/images/network-table.png)
 
-Screenshots use a local test site. [Request details screenshot](docs/images/request-details.png).
+Screenshots use a local test site. [Request details](docs/images/request-details.png) · [JSON viewer](docs/images/json-viewer.png).
 
 ## Current features
 
@@ -16,7 +16,8 @@ Screenshots use a local test site. [Request details screenshot](docs/images/requ
 - Keeps up to 200 recent records in session memory. No captured data is sent to a server.
 - Localizes the manifest and popup into English and Russian using the browser UI language; English is the fallback.
 - The DevTools panel provides a sortable request table with Name, Method, Host, Path, Status, Type, Initiator, Size, Time and Waterfall columns. Columns can be hidden and resized.
-- Select a request to inspect Headers, Payload, Preview, Response, Initiator, Timing and Cookies. JSON previews are expandable; response content is loaded on demand.
+- Select a request to inspect Headers, Payload, Preview, Response, Initiator, Timing and Cookies. HTTP methods remain visible when details are open; response content is loaded on demand.
+- JSON has a syntax highlighted tree and formatted text view, search across keys and values, paged arrays, and copy actions for the document, selected value and JSONPath. Formatting and copying preserve original numeric literals and duplicate keys.
 - Text and resource type filters, pause/resume recording, Preserve log, keyboard selection and resizable details support the native Network workflow.
 - Clearing the DevTools panel removes its records and the inspected tab's background records. The popup still shows and clears the whole background session log.
 

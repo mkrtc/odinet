@@ -8,11 +8,17 @@ Use neutral surfaces, one blue selection accent, semantic request type colors an
 
 ## Layout
 
-The panel has a toolbar, filter row, scrollable request table and summary footer. Selecting a request opens a resizable details region beside the table. Narrow panels stack details below the table. Hide secondary columns while details are open; preserve the Name, Status, Type and Time columns. Escape closes details.
+The panel has a toolbar, filter row, scrollable request table and summary footer. Selecting a request opens a resizable details region beside the table. Narrow panels stack details below the table. Hide secondary columns while details are open; preserve the Name, Method, Status, Type and Time columns. HTTP methods use readable text, including the request detail title. Escape closes details.
 
 ## Extension points
 
 Column descriptors own display and sorting. Detail tabs own their rendering. The DevTools adapter owns HAR entries and lazy response content, separate from rendering. The popup continues to consume the bounded background session log.
+
+## JSON inspection
+
+`src/ui/json-document.ts` parses a strict JSON source tree with jsonc-parser. Values are read and copied from source ranges, preserving large numeric IDs, exponent notation, string escapes and duplicate object keys. `src/ui/json-viewer.ts` renders the tree and highlighted text without executing captured markup.
+
+The viewer provides keyboard navigation, a selected JSONPath, value/document/path copy actions and cancellable key/value search. Arrays and wide objects show 100 children per page. Search reveals the required ancestor pages. A tree render expands at most 2,500 rows and search retains at most 500 matches. Large source views keep all text, with highlighting bounded to 10,000 tokens. Formatting falls back to the original source above the depth/size budget. Clipboard failures expose a selected, read-only copy field.
 
 ## Chromium research
 

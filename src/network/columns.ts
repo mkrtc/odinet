@@ -16,7 +16,7 @@ function initiatorLabel(value: string): string {
 
 export const NETWORK_COLUMNS: readonly NetworkColumn[] = [
   { id: "name", label: "columnName", width: 210, compact: true, value: (e) => e.name, sort: (e) => e.name },
-  { id: "method", label: "columnMethod", width: 72, value: (e) => e.method, sort: (e) => e.method },
+  { id: "method", label: "columnMethod", width: 72, compact: true, value: (e) => e.method, sort: (e) => e.method },
   { id: "host", label: "columnHost", width: 165, value: (e) => e.host, sort: (e) => e.host },
   { id: "path", label: "columnPath", width: 230, value: (e) => e.path, sort: (e) => e.path },
   { id: "status", label: "columnStatus", width: 74, compact: true, value: (e) => e.status ? String(e.status) : t(e.state === "pending" ? "pending" : "failed"), sort: (e) => e.status },

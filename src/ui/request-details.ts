@@ -2,6 +2,8 @@ import { nonNegative, timingPhases, type NetworkEntry } from "../network/model";
 import { CONTENT_LIMIT, type ResponseContent } from "../network/source";
 import { element } from "./dom";
 import { bytes, milliseconds, t } from "./i18n";
+import { parseJsonDocument } from "./json-document";
+import { createJsonViewer } from "./json-viewer";
 
 export type DetailTabId = "headers" | "payload" | "preview" | "response" | "initiator" | "timing" | "cookies";
 type ContentReader = (id: string) => Promise<ResponseContent>;
@@ -44,7 +46,7 @@ function headers({ entry }: DetailContext): HTMLElement {
   return view;
 }
 
-function payload({ entry }: DetailContext): HTMLElement {
+function payload({ entry, signal }: DetailContext): HTMLElement {
   const view = element("div");
   const request = entry.har.request;
   if (request.queryString.length) view.append(section(t("queryParameters"), request.queryString.map((p) => [p.name, p.value])));
@@ -53,35 +55,13 @@ function payload({ entry }: DetailContext): HTMLElement {
   if (data?.text) {
     const group = section(t("requestPayload"), [[t("contentType"), data.mimeType]]);
     if (data.text.length > CONTENT_LIMIT) group.append(note("contentTruncated"));
-    group.append(element("pre", "source-code", formatJson(data.text.slice(0, CONTENT_LIMIT))));
+    const text = data.text.slice(0, CONTENT_LIMIT);
+    const json = data.text.length <= CONTENT_LIMIT ? parseJsonDocument(text) : null;
+    group.append(json ? createJsonViewer(json, signal, "text") : element("pre", "source-code", text));
     view.append(group);
   }
   if (!view.childElementCount) view.append(note("noPayload"));
   return view;
-}
-
-function formatJson(text: string): string {
-  try { return JSON.stringify(JSON.parse(text), null, 2); } catch { return text; }
-}
-
-function jsonPreview(value: unknown): HTMLElement {
-  let count = 0;
-  const visit = (data: unknown, name: string, depth: number): HTMLElement => {
-    if (++count > 1500 || depth > 12) return element("div", "json-value", `${name}: …`);
-    if (typeof data !== "object" || data === null) {
-      return element("div", "json-value", `${name ? `${name}: ` : ""}${JSON.stringify(data)}`);
-    }
-    const node = element("details", "json-node");
-    node.open = depth < 2;
-    const entries = Object.entries(data);
-    node.append(element("summary", "", `${name ? `${name}: ` : ""}${Array.isArray(data) ? `Array(${entries.length})` : "{…}"}`));
-    for (const [key, item] of entries) {
-      if (count > 1500) { node.append(element("div", "json-value", "…")); break; }
-      node.append(visit(item, key, depth + 1));
-    }
-    return node;
-  };
-  return visit(value, "", 0);
 }
 
 function contentView(context: DetailContext, preview: boolean): HTMLElement {
@@ -112,15 +92,11 @@ function contentView(context: DetailContext, preview: boolean): HTMLElement {
       const binary = atob(text);
       text = new TextDecoder().decode(Uint8Array.from(binary, (character) => character.charCodeAt(0)));
     }
-    if (preview) {
-      try { view.append(jsonPreview(JSON.parse(text))); return; } catch { /* Plain text is an inert fallback. */ }
-    }
+    const json = body.truncated ? null : parseJsonDocument(text);
+    if (json) { view.append(createJsonViewer(json, context.signal, preview ? "tree" : "text")); return; }
     if (preview && mime.includes("html")) view.append(note("htmlSourcePreview"));
     const code = element("pre", "source-code", text);
-    const format = element("button", "format-button", t("formatJson"));
-    format.type = "button";
-    format.addEventListener("click", () => { code.textContent = formatJson(text); });
-    view.append(format, code);
+    view.append(code);
     if (!text) view.append(note("emptyResponse"));
   }).catch((error: unknown) => {
     if (context.signal.aborted) return;

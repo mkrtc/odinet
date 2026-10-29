@@ -20,5 +20,6 @@ if (!result.success) {
   process.exitCode = 1;
 } else {
   await cp(join(root, "public"), output, { recursive: true });
+  await cp(join(root, "THIRD_PARTY_NOTICES.md"), join(output, "THIRD_PARTY_NOTICES.md"));
   console.log(`Odinet built: ${output}`);
 }
