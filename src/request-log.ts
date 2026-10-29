@@ -11,6 +11,9 @@ const list = requiredElement<HTMLOListElement>("#requests");
 const statusMessage = requiredElement<HTMLParagraphElement>("#message");
 const clearButton = requiredElement<HTMLButtonElement>("#clear");
 const locale = chrome.i18n.getUILanguage();
+const inspectedTabId = document.body.dataset.view === "devtools"
+  ? chrome.devtools.inspectedWindow.tabId
+  : undefined;
 
 function localized(key: string, substitution?: string): string {
   return chrome.i18n.getMessage(key, substitution) || key;
@@ -18,7 +21,9 @@ function localized(key: string, substitution?: string): string {
 
 document.documentElement.lang = isRussianLocale(locale) ? "ru" : "en";
 document.title = localized("extensionName");
-requiredElement<HTMLParagraphElement>("#subtitle").textContent = localized("popupSubtitle");
+requiredElement<HTMLParagraphElement>("#subtitle").textContent = localized(
+  inspectedTabId === undefined ? "popupSubtitle" : "panelSubtitle",
+);
 clearButton.textContent = localized("clear");
 list.setAttribute("aria-label", localized("requestListLabel"));
 statusMessage.textContent = localized("loading");
@@ -58,7 +63,7 @@ function render(records: readonly RequestRecord[]): void {
   list.replaceChildren(fragment);
   const count = records.length;
   statusMessage.textContent = count === 0
-    ? localized("noRequests")
+    ? localized(inspectedTabId === undefined ? "noRequests" : "noTabRequests")
     : localized(requestCountMessageKey(count, locale), String(count));
 }
 
@@ -67,7 +72,10 @@ async function refresh(): Promise<void> {
   const readId = ++latestRead;
   try {
     const stored = await chrome.storage.session.get(REQUESTS_KEY);
-    if (readId === latestRead) render(readRequests(stored[REQUESTS_KEY]));
+    const requests = readRequests(stored[REQUESTS_KEY]);
+    if (readId === latestRead) {
+      render(inspectedTabId === undefined ? requests : requests.filter((request) => request.tabId === inspectedTabId));
+    }
   } catch (error) {
     if (readId === latestRead) statusMessage.textContent = localized("readError");
     console.error("Odinet: failed to read the request log", error);
@@ -84,7 +92,10 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 clearButton.addEventListener("click", async () => {
   clearButton.disabled = true;
   try {
-    const result: unknown = await chrome.runtime.sendMessage({ type: "clear-requests" });
+    const result: unknown = await chrome.runtime.sendMessage({
+      type: "clear-requests",
+      ...(inspectedTabId === undefined ? {} : { tabId: inspectedTabId }),
+    });
     if (typeof result !== "object" || result === null || (result as { ok?: unknown }).ok !== true) {
       throw new Error("Background worker did not confirm the clear operation");
     }

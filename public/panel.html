@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Odinet</title>
+    <link rel="stylesheet" href="request-log.css" />
+    <script type="module" src="request-log.js"></script>
+  </head>
+  <body data-view="devtools">
+    <header>
+      <div>
+        <h1>Odinet</h1>
+        <p id="subtitle">HTTP requests for the inspected tab</p>
+      </div>
+      <button id="clear" type="button">Clear</button>
+    </header>
+    <main>
+      <p id="message" role="status">Loading…</p>
+      <ol id="requests" aria-label="Recent HTTP requests"></ol>
+    </main>
+  </body>
+</html>

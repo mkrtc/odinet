@@ -55,7 +55,21 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) =
     return false;
   }
 
-  writeQueue = writeQueue.then(() => chrome.storage.session.remove(REQUESTS_KEY));
+  const tabId = (message as { tabId?: unknown }).tabId;
+  if (tabId !== undefined && (typeof tabId !== "number" || !Number.isInteger(tabId) || tabId < 0)) {
+    sendResponse({ ok: false });
+    return false;
+  }
+
+  writeQueue = writeQueue.then(async () => {
+    if (tabId === undefined) {
+      await chrome.storage.session.remove(REQUESTS_KEY);
+      return;
+    }
+    const stored = await chrome.storage.session.get(REQUESTS_KEY);
+    const requests = readRequests(stored[REQUESTS_KEY]).filter((request) => request.tabId !== tabId);
+    await chrome.storage.session.set({ [REQUESTS_KEY]: requests });
+  });
   writeQueue.then(
     () => sendResponse({ ok: true }),
     (error: unknown) => {

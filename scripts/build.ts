@@ -8,7 +8,7 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 
 const result = await Bun.build({
-  entrypoints: [join(root, "src/background.ts"), join(root, "src/popup.ts")],
+  entrypoints: ["background", "request-log", "devtools"].map((name) => join(root, `src/${name}.ts`)),
   outdir: output,
   target: "browser",
   format: "esm",

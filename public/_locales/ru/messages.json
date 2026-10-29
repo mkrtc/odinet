@@ -2,6 +2,8 @@
   "extensionName": { "message": "Odinet", "description": "Название расширения" },
   "extensionDescription": { "message": "Локальный журнал HTTP-запросов для исследования сайтов.", "description": "Описание расширения" },
   "popupSubtitle": { "message": "HTTP-запросы текущей сессии" },
+  "panelSubtitle": { "message": "HTTP-запросы исследуемой вкладки" },
+  "noTabRequests": { "message": "Пока нет запросов этой вкладки. Перезагрузите исследуемую страницу." },
   "clear": { "message": "Очистить" },
   "requestListLabel": { "message": "Последние HTTP-запросы" },
   "loading": { "message": "Загрузка…" },

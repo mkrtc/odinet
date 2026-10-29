@@ -1,5 +1,6 @@
 :root { color-scheme: light dark; font: 13px system-ui, sans-serif; }
 body { width: 520px; max-height: 600px; margin: 0; }
+body[data-view="devtools"] { width: auto; max-height: none; min-width: 0; }
 header { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; background: Canvas; border-bottom: 1px solid GrayText; }
 h1 { margin: 0; font-size: 20px; }
 header p { margin: 4px 0 0; color: GrayText; }
@@ -8,7 +9,7 @@ main { padding: 0 16px 16px; }
 #message { color: GrayText; }
 #requests { list-style: none; padding: 0; margin: 0; }
 li { padding: 10px 0; border-bottom: 1px solid color-mix(in srgb, GrayText 35%, transparent); }
-.meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: GrayText; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 4px; color: GrayText; }
 .method { font-weight: 700; color: CanvasText; }
 .url { overflow-wrap: anywhere; user-select: text; }
 .failed { color: #b63333; }

@@ -1,6 +1,6 @@
 # Odinet
 
-**Odinet** is an open source Chromium extension for observing HTTP and HTTPS requests while exploring websites. This repository currently contains the capture foundation and a small popup. Page parsing and advanced Network tools are planned for later stages.
+**Odinet** is an open source Chromium extension for observing HTTP and HTTPS requests while exploring websites. This repository currently contains the capture foundation, a popup and a DevTools panel. Page parsing and advanced Network tools are planned for later stages.
 
 [Русская версия](README.ru.md)
 
@@ -11,6 +11,7 @@
 - Shows method, URL, resource type, tab ID and final HTTP status in the popup.
 - Keeps up to 200 recent records in session memory. No captured data is sent to a server.
 - Localizes the manifest and popup into English and Russian using the browser UI language; English is the fallback.
+- Adds an Odinet DevTools panel scoped to the inspected tab. Clearing the panel removes only that tab's records; the popup still shows and clears the whole session log.
 
 ## Requirements and setup
 
@@ -26,6 +27,8 @@ bun run build
 ```
 
 Open `chrome://extensions` in a Chromium browser, enable Developer mode and load the **`dist`** directory as an unpacked extension. On Helium, use its extensions page if the `chrome://` address is redirected. The popup then shows requests made after installation.
+
+To use the DevTools panel, open a website, open DevTools and select **Odinet** (it may be under the `»` menu). After reloading the extension, close and reopen DevTools so the new panel can register.
 
 ## Scope and privacy
 

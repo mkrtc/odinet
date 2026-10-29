@@ -2,6 +2,8 @@
   "extensionName": { "message": "Odinet", "description": "Extension name" },
   "extensionDescription": { "message": "Local HTTP request log for website research.", "description": "Extension description" },
   "popupSubtitle": { "message": "HTTP requests in this session" },
+  "panelSubtitle": { "message": "HTTP requests for the inspected tab" },
+  "noTabRequests": { "message": "No requests for this tab yet. Reload the inspected page." },
   "clear": { "message": "Clear" },
   "requestListLabel": { "message": "Recent HTTP requests" },
   "loading": { "message": "Loading…" },
