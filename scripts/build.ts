@@ -20,5 +20,5 @@ if (!result.success) {
   process.exitCode = 1;
 } else {
   await cp(join(root, "public"), output, { recursive: true });
-  console.log(`Odinet собран: ${output}`);
+  console.log(`Odinet built: ${output}`);
 }

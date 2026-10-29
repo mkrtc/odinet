@@ -10,6 +10,7 @@
 - Groups request lifecycle events by request ID, including redirects, completion and network errors.
 - Shows method, URL, resource type, tab ID and final HTTP status in the popup.
 - Keeps up to 200 recent records in session memory. No captured data is sent to a server.
+- Localizes the manifest and popup into English and Russian using the browser UI language; English is the fallback.
 
 ## Requirements and setup
 

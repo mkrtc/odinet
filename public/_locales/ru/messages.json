@@ -1,0 +1,31 @@
+{
+  "extensionName": { "message": "Odinet", "description": "Название расширения" },
+  "extensionDescription": { "message": "Локальный журнал HTTP-запросов для исследования сайтов.", "description": "Описание расширения" },
+  "popupSubtitle": { "message": "HTTP-запросы текущей сессии" },
+  "clear": { "message": "Очистить" },
+  "requestListLabel": { "message": "Последние HTTP-запросы" },
+  "loading": { "message": "Загрузка…" },
+  "noRequests": { "message": "Пока нет запросов. Откройте сайт в другой вкладке." },
+  "recentRequestsOne": {
+    "message": "Последний $COUNT$ запрос · новые сверху",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "recentRequestsFew": {
+    "message": "Последние $COUNT$ запроса · новые сверху",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "recentRequestsMany": {
+    "message": "Последние $COUNT$ запросов · новые сверху",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "failed": { "message": "Ошибка" },
+  "redirected": { "message": "Перенаправление" },
+  "pending": { "message": "Ожидание" },
+  "tab": {
+    "message": "Вкладка $ID$",
+    "placeholders": { "id": { "content": "$1" } }
+  },
+  "noTab": { "message": "Без вкладки" },
+  "readError": { "message": "Не удалось прочитать журнал запросов." },
+  "clearError": { "message": "Не удалось очистить журнал запросов." }
+}

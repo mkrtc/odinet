@@ -8,7 +8,7 @@ function record(event: RequestEvent): void {
     const requests = applyRequestEvent(readRequests(stored[REQUESTS_KEY]), event);
     await chrome.storage.session.set({ [REQUESTS_KEY]: requests });
   }).catch((error: unknown) => {
-    console.error("Odinet: не удалось сохранить HTTP-запрос", error);
+    console.error("Odinet: failed to save HTTP request", error);
   });
 }
 
@@ -59,7 +59,7 @@ chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) =
   writeQueue.then(
     () => sendResponse({ ok: true }),
     (error: unknown) => {
-      console.error("Odinet: не удалось очистить журнал", error);
+      console.error("Odinet: failed to clear the request log", error);
       sendResponse({ ok: false });
     },
   );

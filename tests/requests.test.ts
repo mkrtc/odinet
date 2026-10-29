@@ -12,8 +12,8 @@ const start: RequestEvent = {
   timeStamp: 10,
 };
 
-describe("журнал запросов", () => {
-  it("собирает редирект и успешное завершение в одну запись", () => {
+describe("request log", () => {
+  it("groups a redirect and completion into one record", () => {
     const started = applyRequestEvent([], start);
     const redirected = applyRequestEvent(started, {
       ...start, kind: "redirected", redirectUrl: "https://example.test/next", timeStamp: 20,
@@ -28,12 +28,12 @@ describe("журнал запросов", () => {
     });
   });
 
-  it("фиксирует ошибку даже если событие начала не получено", () => {
+  it("records a failure when the start event was missed", () => {
     const result = applyRequestEvent([], { ...start, kind: "failed", error: "net::ERR_FAILED" });
     expect(result[0]).toMatchObject({ state: "failed", error: "net::ERR_FAILED" });
   });
 
-  it("ограничивает историю и игнорирует неподходящие URL", () => {
+  it("bounds history and ignores non-HTTP URLs", () => {
     let records = applyRequestEvent([], { ...start, url: "file:///tmp/x" });
     expect(records).toHaveLength(0);
     for (let i = 0; i < MAX_REQUESTS + 10; i++) {
@@ -43,7 +43,7 @@ describe("журнал запросов", () => {
     expect(records[0]?.id).toBe(String(MAX_REQUESTS + 9));
   });
 
-  it("отбрасывает повреждённые данные хранилища", () => {
+  it("ignores malformed storage records", () => {
     expect(readRequests([{}, null, 12])).toEqual([]);
   });
 });

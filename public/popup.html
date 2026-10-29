@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,13 +11,13 @@
     <header>
       <div>
         <h1>Odinet</h1>
-        <p>HTTP-запросы текущей сессии</p>
+        <p id="subtitle">HTTP requests in this session</p>
       </div>
-      <button id="clear" type="button">Очистить</button>
+      <button id="clear" type="button">Clear</button>
     </header>
     <main>
-      <p id="message" role="status">Загрузка…</p>
-      <ol id="requests" aria-label="Последние HTTP-запросы"></ol>
+      <p id="message" role="status">Loading…</p>
+      <ol id="requests" aria-label="Recent HTTP requests"></ol>
     </main>
   </body>
 </html>

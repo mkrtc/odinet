@@ -1,0 +1,31 @@
+{
+  "extensionName": { "message": "Odinet", "description": "Extension name" },
+  "extensionDescription": { "message": "Local HTTP request log for website research.", "description": "Extension description" },
+  "popupSubtitle": { "message": "HTTP requests in this session" },
+  "clear": { "message": "Clear" },
+  "requestListLabel": { "message": "Recent HTTP requests" },
+  "loading": { "message": "Loading…" },
+  "noRequests": { "message": "No requests yet. Open a website in another tab." },
+  "recentRequestsOne": {
+    "message": "Latest $COUNT$ request · newest first",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "recentRequestsFew": {
+    "message": "Latest $COUNT$ requests · newest first",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "recentRequestsMany": {
+    "message": "Latest $COUNT$ requests · newest first",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "failed": { "message": "Failed" },
+  "redirected": { "message": "Redirecting" },
+  "pending": { "message": "Pending" },
+  "tab": {
+    "message": "Tab $ID$",
+    "placeholders": { "id": { "content": "$1" } }
+  },
+  "noTab": { "message": "No tab" },
+  "readError": { "message": "Could not read the request log." },
+  "clearError": { "message": "Could not clear the request log." }
+}
