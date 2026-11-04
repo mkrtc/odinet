@@ -242,13 +242,14 @@ export class ElementRequestsController {
     if (this.snapshot && !this.scanning && !this.scanResult && !this.snapshot.samples.length) text += ` ${t("elementNoSamples")}`;
     this.diagnostics.textContent = text;
     this.status.title = text;
-    const compactKey = this.error ? "elementErrorShort" : this.capturePending ? "loading" : !this.snapshot ? "elementSelectShort" : this.scanning ? "elementScanningShort" : "elementMatchesShort";
+    const pickerFailed = this.pickerState === "unavailable";
+    const compactKey = this.error || pickerFailed ? "elementErrorShort" : this.capturePending ? "loading" : !this.snapshot ? "elementSelectShort" : this.scanning ? "elementScanningShort" : "elementMatchesShort";
     const compact = t(compactKey, String(this.scanning ? this.checked : this.relations.size));
     if (this.status.textContent !== compact) this.status.textContent = compact;
-    const warning = Boolean(this.error || this.snapshot?.limited || this.scanResult?.limited || this.scanResult?.unavailable);
+    const warning = Boolean(this.error || pickerFailed || this.snapshot?.limited || this.scanResult?.limited || this.scanResult?.unavailable);
     this.infoToggle.textContent = warning ? "!" : "?";
     this.infoToggle.classList.toggle("has-warning", warning);
-    this.infoToggle.title = warning ? `${t("elementAnalysisIncomplete")}\n${text}` : t("elementAnalysisInfo");
+    this.infoToggle.title = pickerFailed ? t("elementPicker_unavailable") : warning ? `${t("elementAnalysisIncomplete")}\n${text}` : t("elementAnalysisInfo");
     this.infoToggle.setAttribute("aria-label", t(warning ? "elementAnalysisIncomplete" : "elementAnalysisInfo"));
   }
 
@@ -306,5 +307,6 @@ export class ElementRequestsController {
     this.pick.setAttribute("aria-pressed", String(this.picker.enabled));
     this.pick.disabled = this.pickerState === "starting";
     this.pickerHint.textContent = t(`elementPicker_${this.pickerState}`);
+    this.updateStatus();
   }
 }
