@@ -212,5 +212,16 @@
   "copyBodyUnavailable": {"message":"Тело запроса недоступно, двоичное или слишком большое для экспорта."},
   "copyFetchBodyUnsupported": {"message":"Fetch не поддерживает тело для GET и HEAD. Используйте cURL или Python."},
   "copyResponseUnavailable": {"message":"Тело ответа недоступно. Перезагрузите страницу для его захвата."},
-  "copyResponseTooLarge": {"message":"Ответ превышает лимит копирования 2 МиБ. Используйте штатную панель Network."}
+  "copyResponseTooLarge": {"message":"Ответ превышает лимит копирования 2 МиБ. Используйте штатную панель Network."},
+  "mcpTitle": {"message": "Подключение MCP"},
+  "mcpPort": {"message": "Локальный порт"},
+  "mcpToken": {"message": "Токен подключения"},
+  "mcpScope": {"message": "Доступ к этой вкладке для локального агента. Известные секреты скрыты. Токен: bun run mcp:setup."},
+  "mcpConnect": {"message": "Подключить"},
+  "mcpDisconnect": {"message": "Отключить"},
+  "mcpState_disconnected": {"message": "Не подключено"},
+  "mcpState_connecting": {"message": "Подключение…"},
+  "mcpState_connected": {"message": "Подключено · только чтение"},
+  "mcpState_retrying": {"message": "Переподключение… Проверьте MCP-сервер и токен."},
+  "mcpState_failed": {"message": "Не удалось подключиться. Проверьте сервер, порт и токен."}
 }

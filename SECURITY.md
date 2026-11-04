@@ -1,6 +1,6 @@
 # Security policy
 
-Odinet can observe URLs from pages you visit. The DevTools panel can also access HAR headers, cookies, request bodies and response content. Captured traffic can contain credentials and personal information. DevTools details stay in panel memory; the popup's background metadata stays in session storage. Nothing is uploaded by the extension.
+Odinet can observe URLs from pages you visit. The DevTools panel can also access HAR headers, cookies, request bodies and response content. Captured traffic can contain credentials and personal information. DevTools details stay in panel memory; the popup's background metadata stays in session storage. Optional MCP sharing is off by default and exposes redacted recorded data only to an explicitly paired local MCP client. That client may forward returned data to its model provider. Odinet contacts no remote service.
 
 When element inspection is enabled, Odinet reads a bounded snapshot of the selected DOM subtree, including visible text, selected attributes and resource URLs. Selecting an element automatically compares its snapshot with recorded response bodies without replaying requests. Snapshots and match evidence stay in panel memory and are cleared on selection changes, navigation, mode closure or DevTools closure.
 
@@ -11,3 +11,11 @@ Explicit request/response copies write to the system clipboard with `clipboardWr
 Please do not publish a vulnerability or a captured request in a public issue. Use [GitHub's private vulnerability reporting](https://github.com/mkrtc/odinet/security/advisories/new) when it is available for this repository. If that option is unavailable, contact the repository owner privately through their GitHub profile before disclosing details.
 
 Security fixes are prioritized for the latest version on the default branch. There is no published release support policy yet.
+
+## MCP boundary
+
+The Bun stdio server owns a WebSocket listener bound to `127.0.0.1` only. Upgrades require the literal loopback Host, an extension Origin and a 256-bit pairing token in the WebSocket subprotocol. HTTP access, website origins and missing/incorrect tokens are rejected; there is no CORS wildcard or unauthenticated traffic endpoint. MCP clients communicate through local stdio, not HTTP. A new panel starts disconnected and must be explicitly paired. The token file is created with mode 0600; it contains no traffic. Do not publish setup output.
+
+Each paired panel exposes its complete retained HAR history, independent of UI filters. Its request reader validates a read-only command allowlist and redacts known credentials before data leaves the extension, then paginates the redacted text. The broker does not persist traffic. Session identity scopes replies; timeouts, cancellation, navigation/clear, peer disconnect and process shutdown prevent stale reads from being delivered as current data. Capacity and payload limits bound pending work. Binary/multipart/oversized content is explicitly omitted.
+
+Known-field redaction is not general anonymization. Unknown secrets, business data and personal information may remain. Captured content is labelled untrusted; no evaluation, browser-control, replay or raw-credential tool is exposed. Closing DevTools or Disconnect revokes the connection; switching DevTools tabs leaves an explicitly enabled session available. See [MCP setup, limits and rotation](docs/MCP.md).

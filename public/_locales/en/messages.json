@@ -212,5 +212,16 @@
   "copyBodyUnavailable": {"message":"The request body is unavailable, binary or too large to export."},
   "copyFetchBodyUnsupported": {"message":"Fetch does not support a body for GET or HEAD. Use cURL or Python."},
   "copyResponseUnavailable": {"message":"The response body is unavailable. Reload the page to capture it."},
-  "copyResponseTooLarge": {"message":"The response exceeds the 2 MiB copy limit. Use the native Network panel."}
+  "copyResponseTooLarge": {"message":"The response exceeds the 2 MiB copy limit. Use the native Network panel."},
+  "mcpTitle": {"message": "MCP connection"},
+  "mcpPort": {"message": "Local port"},
+  "mcpToken": {"message": "Pairing token"},
+  "mcpScope": {"message": "Share this tab with your local agent. Known credentials are redacted. Get the token: bun run mcp:setup."},
+  "mcpConnect": {"message": "Connect"},
+  "mcpDisconnect": {"message": "Disconnect"},
+  "mcpState_disconnected": {"message": "Disconnected"},
+  "mcpState_connecting": {"message": "Connecting…"},
+  "mcpState_connected": {"message": "Connected · read only"},
+  "mcpState_retrying": {"message": "Reconnecting… Check the MCP server and token."},
+  "mcpState_failed": {"message": "Connection failed. Check the server, port and token."}
 }

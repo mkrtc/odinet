@@ -58,6 +58,14 @@ API contracts: [selected-window evaluation](https://developer.chrome.com/docs/ex
 
 `src/network/redaction.ts` implements agent-copy credential removal on request and response headers, URL userinfo/query fields, JSON keys and URL-encoded forms. JSON edits operate on source ranges, preserving duplicate keys and numeric precision. Credential-bearing containers are replaced as a whole to avoid overlapping edits. Agent output labels unavailable, binary, undecodable and truncated response bodies instead of pretending they are complete. Multipart body content is omitted from agent copies. Markdown fences expand when captured text contains backticks. Captured content is marked as untrusted data. The policy recognizes known secret names/patterns and does not promise general payload anonymization.
 
+## Read-only MCP integration
+
+The optional local stdio server lives in `src/mcp/{server,broker,config}.ts` and `scripts/mcp.ts`. The official TypeScript SDK owns MCP framing, lifecycle, tool validation and cancellation. Its dependencies are not bundled into the extension. The WebSocket broker binds to literal IPv4 loopback and checks Host, extension Origin and a random 256-bit token offered through a subprotocol. It accepts at most 16 explicit panel sessions, with four pending calls each, a 12-second deadline and a 1 MiB frame limit. Pending maps are session-scoped and cleaned on completion, cancellation, timeout, disconnect or shutdown.
+
+`src/mcp/protocol.ts` owns strict schemas shared by both sides. `panel-client.ts` accepts only list/read commands, handles authenticated connection setup, bounded reconnection and generation-based suppression of late results. `reader.ts` operates on the existing HAR adapter, shares its lazy body cache, checks entry identity again after asynchronous reads, and never replays traffic. Full source redaction precedes pagination. List metadata includes redacted bounded URLs; read documents preserve original JSON literals.
+
+`src/ui/mcp-controls.ts` supplies a compact toolbar disclosure: port, password-masked token, connection state and Connect/Disconnect. Pairing is never enabled or persisted automatically. No extra browser permission is requested. Closing DevTools or disconnecting revokes access; an explicitly connected session remains available while the user views another DevTools tab. The localhost server retains only socket/session metadata and pending results, with no traffic persistence. The sole persistent file stores port and token; diagnostics go to stderr. See [MCP contracts and limits](MCP.md).
+
 ## Chromium research
 
 Reviewed the official ChromeDevTools/devtools-frontend mirror at revision `a0c962bc04993dd4b0843f34fa0d2b2afa6d0936`:

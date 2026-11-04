@@ -7,6 +7,7 @@ import { DETAIL_TABS, type DetailTabId } from "./ui/request-details";
 import { isRussianLocale } from "./shared/localization";
 import { ElementRequestsController } from "./element/controller";
 import { RequestCopyMenu } from "./ui/request-copy";
+import { McpControls } from "./ui/mcp-controls";
 
 const table = required<HTMLTableElement>("#network-table");
 const tableBody = required<HTMLTableSectionElement>("#network-rows");
@@ -75,6 +76,9 @@ const source = new DevtoolsNetworkSource((next) => {
 });
 
 const requestCopy = new RequestCopyMenu((id) => source.readContent(id));
+const mcpControls = new McpControls(required<HTMLElement>("#network-toolbar"), tabId, {
+  entries: () => entries, readContent: (id) => source.readContent(id),
+});
 chrome.devtools.network.onNavigated.addListener(requestCopy.cancel);
 function showRequestMenu(entry: NetworkEntry, event: MouseEvent): void {
   const trigger = event.currentTarget instanceof HTMLElement ? event.currentTarget : table;
@@ -399,6 +403,7 @@ window.addEventListener("pagehide", () => {
   if (renderTimer !== undefined) clearTimeout(renderTimer);
   elementRequests.dispose();
   requestCopy.dispose();
+  mcpControls.dispose();
   chrome.devtools.network.onNavigated.removeListener(requestCopy.cancel);
   observer.disconnect(); detailAbort.abort(); source.dispose();
 }, { once: true });
