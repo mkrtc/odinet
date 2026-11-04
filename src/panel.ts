@@ -5,6 +5,7 @@ import { element, required } from "./ui/dom";
 import { bytes, milliseconds, t } from "./ui/i18n";
 import { DETAIL_TABS, type DetailTabId } from "./ui/request-details";
 import { isRussianLocale } from "./shared/localization";
+import { ElementRequestsController } from "./element/controller";
 
 const table = required<HTMLTableElement>("#network-table");
 const tableBody = required<HTMLTableSectionElement>("#network-rows");
@@ -71,6 +72,16 @@ const source = new DevtoolsNetworkSource((next) => {
   notice.textContent = t("readError");
   console.error("Odinet: failed to read DevTools requests", error);
 });
+
+const elementRequests = new ElementRequestsController(
+  required<HTMLButtonElement>("#element-mode"), required<HTMLElement>("#element-requests"), render,
+  (id) => {
+    filter.value = ""; group = "all";
+    for (const [key, button] of filterButtons) button.setAttribute("aria-pressed", String(key === group));
+    render(); selectRequest(id);
+  },
+  (id) => source.readContent(id),
+);
 
 function selectRequest(id: string, focus = false): void {
   selectedId = id;
@@ -229,9 +240,10 @@ for (const tab of DETAIL_TABS) {
 }
 
 function render(): void {
+  elementRequests.updateEntries(entries);
   const atBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 25;
   const column = NETWORK_COLUMNS.find((item) => item.id === sortId);
-  visible = entries.filter((entry) => matchesFilter(entry, filter.value, group)).sort((a, b) => compareEntries(a, b, column, sortDirection));
+  visible = entries.filter((entry) => matchesFilter(entry, filter.value, group) && elementRequests.includes(entry)).sort((a, b) => compareEntries(a, b, column, sortDirection));
   if (selectedId && !visible.some((entry) => entry.id === selectedId)) closeDetails();
   const first = Math.min(...entries.map((entry) => entry.startedAt));
   const end = Math.max(...entries.map((entry) => entry.startedAt + (entry.duration ?? 0)));
@@ -295,7 +307,7 @@ function render(): void {
   }
   empty.hidden = visible.length > 0;
   required<HTMLElement>("#empty-title").textContent = t(entries.length ? "noMatchingRequests" : source.recording ? "recordingActivity" : "recordingPaused");
-  required<HTMLElement>("#empty-description").textContent = t(entries.length ? "changeFilters" : "reloadToCapture");
+  required<HTMLElement>("#empty-description").textContent = t(entries.length ? elementRequests.filtering ? "elementEmptyHelp" : "changeFilters" : "reloadToCapture");
   required<HTMLButtonElement>("#reload").hidden = entries.length > 0;
   const transfer = entries.reduce((sum, entry) => sum + (entry.transferSize ?? 0), 0);
   const resources = entries.reduce((sum, entry) => sum + (entry.resourceSize ?? 0), 0);
@@ -367,6 +379,7 @@ const observer = new ResizeObserver(() => splitter.setAttribute("aria-orientatio
 observer.observe(workspace);
 window.addEventListener("pagehide", () => {
   if (renderTimer !== undefined) clearTimeout(renderTimer);
+  elementRequests.dispose();
   observer.disconnect(); detailAbort.abort(); source.dispose();
 }, { once: true });
 updateColumns();
