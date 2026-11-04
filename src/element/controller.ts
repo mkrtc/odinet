@@ -27,7 +27,10 @@ export class ElementRequestsController {
   private readonly pick = this.control("elementPickerStart", () => { if (this.picker.enabled) this.picker.pause(); else this.picker.start(); });
   private readonly pickerHint = element("p", "element-picker-hint");
   private readonly label = element("code", "element-label");
-  private readonly status = element("p", "element-status");
+  private readonly status = element("span", "element-status");
+  private readonly info = element("details", "element-info");
+  private readonly infoToggle = element("summary", "element-info-toggle", "?");
+  private readonly diagnostics = element("p");
   private readonly explanation = element("p", "element-explanation", t("elementLimitations"));
   private readonly list = element("ul", "element-matches");
   private readonly onlyRelated = element("input");
@@ -54,14 +57,26 @@ export class ElementRequestsController {
     this.onlyRelated.checked = true;
     this.onlyRelated.addEventListener("change", onChange);
     const only = element("label", "preserve-label");
-    only.append(this.onlyRelated, document.createTextNode(t("elementOnlyRelated")));
+    only.title = t("elementOnlyRelated");
+    only.append(this.onlyRelated, document.createTextNode(t("elementRelatedShort")));
+    this.refresh.textContent = t("elementRefreshShort"); this.refresh.title = t("elementUseSelected");
+    this.scan.textContent = t("elementRescanShort"); this.scan.title = t("elementFindData");
     const close = this.control("elementClose", () => this.setActive(false));
+    close.textContent = "×"; close.title = t("elementClose");
+    close.classList.add("element-close");
     const toolbar = element("div", "element-toolbar");
-    toolbar.append(this.label, this.pick, this.refresh, this.scan, only, close);
+    this.infoToggle.title = t("elementAnalysisInfo");
+    this.infoToggle.setAttribute("aria-label", t("elementAnalysisInfo"));
+    const infoContent = element("div", "element-info-content");
+    infoContent.append(this.pickerHint, this.diagnostics, this.explanation);
+    this.info.append(this.infoToggle, infoContent);
+    this.info.addEventListener("toggle", () => {
+      if (this.info.open) infoContent.style.top = `${Math.min(this.infoToggle.getBoundingClientRect().bottom + 4, Math.max(4, innerHeight - 160))}px`;
+    });
+    toolbar.append(this.label, this.status, this.pick, this.refresh, this.scan, only, this.info, close);
     this.status.role = "status";
     this.list.setAttribute("aria-label", t("elementRelatedList"));
-    this.pickerHint.role = "status";
-    root.append(toolbar, this.pickerHint, this.status, this.list, this.explanation);
+    root.append(toolbar, this.list);
     this.picker = new ElementPickerClient(api.inspectedWindow.tabId,
       (snapshot) => { if (this.active) void this.capture(snapshot); },
       (state) => { this.pickerState = state; this.displayPicker(); },
@@ -71,11 +86,13 @@ export class ElementRequestsController {
     window.addEventListener(PANEL_SHOWN_EVENT, this.shown);
     window.addEventListener(PANEL_HIDDEN_EVENT, this.hidden);
     window.addEventListener("keydown", this.escape, true);
+    window.addEventListener("pointerdown", this.dismissInfo);
   }
 
   private control(key: string, action: () => void): HTMLButtonElement {
     const button = element("button", "json-button", t(key));
     button.type = "button";
+    button.setAttribute("aria-label", t(key));
     button.addEventListener("click", action);
     return button;
   }
@@ -84,12 +101,19 @@ export class ElementRequestsController {
   private readonly navigated = (): void => { this.reset(); if (this.active) this.picker.restart(); this.display(); this.onChange(); };
   private readonly shown = (): void => this.picker.setVisible(true);
   private readonly hidden = (): void => this.picker.setVisible(false);
+  private readonly dismissInfo = (event: PointerEvent): void => {
+    if (event.target instanceof Node && !this.info.contains(event.target)) this.info.open = false;
+  };
   private readonly escape = (event: KeyboardEvent): void => {
+    if (event.key === "Escape" && this.info.open) {
+      event.preventDefault(); event.stopImmediatePropagation(); this.info.open = false; this.infoToggle.focus(); return;
+    }
     if (event.key !== "Escape" || !this.active || !this.picker.enabled) return;
     event.preventDefault(); event.stopImmediatePropagation(); this.picker.pause();
   };
 
   private reset(): void {
+    this.info.open = false;
     this.generation++;
     this.abort.abort();
     this.abort = new AbortController();
@@ -107,7 +131,7 @@ export class ElementRequestsController {
     this.toggle.setAttribute("aria-pressed", String(active));
     this.root.hidden = !active;
     if (active) { this.reset(); this.display(); this.onChange(); this.picker.start(); }
-    else { this.picker.stop(); this.reset(); this.onChange(); this.toggle.focus(); }
+    else { this.info.open = false; this.picker.stop(); this.reset(); this.onChange(); this.toggle.focus(); }
   }
 
   private async capture(picked?: ElementSnapshot | null): Promise<void> {
@@ -216,13 +240,22 @@ export class ElementRequestsController {
     if (this.snapshot?.limited || this.scanResult?.limited) text += ` ${t("elementScanLimited")}`;
     if (this.scanResult?.unavailable) text += ` ${t("elementUnavailable", String(this.scanResult.unavailable))}`;
     if (this.snapshot && !this.scanning && !this.scanResult && !this.snapshot.samples.length) text += ` ${t("elementNoSamples")}`;
-    if (this.status.textContent !== text) this.status.textContent = text;
+    this.diagnostics.textContent = text;
+    this.status.title = text;
+    const compactKey = this.error ? "elementErrorShort" : this.capturePending ? "loading" : !this.snapshot ? "elementSelectShort" : this.scanning ? "elementScanningShort" : "elementMatchesShort";
+    const compact = t(compactKey, String(this.scanning ? this.checked : this.relations.size));
+    if (this.status.textContent !== compact) this.status.textContent = compact;
+    const warning = Boolean(this.error || this.snapshot?.limited || this.scanResult?.limited || this.scanResult?.unavailable);
+    this.infoToggle.textContent = warning ? "!" : "?";
+    this.infoToggle.classList.toggle("has-warning", warning);
+    this.infoToggle.title = warning ? `${t("elementAnalysisIncomplete")}\n${text}` : t("elementAnalysisInfo");
+    this.infoToggle.setAttribute("aria-label", t(warning ? "elementAnalysisIncomplete" : "elementAnalysisInfo"));
   }
 
   private display(): void {
     this.displayPicker();
     this.label.textContent = this.snapshot?.label ?? t("elementNoSelection");
-    this.label.title = this.snapshot ? `${this.snapshot.label}\n${this.snapshot.pageUrl}` : "";
+    this.label.title = this.snapshot?.label ?? "";
     this.refresh.disabled = this.capturePending;
     this.scan.disabled = !this.snapshot || !this.snapshot.samples.length || this.scanning;
     this.onlyRelated.disabled = !this.snapshot;
@@ -239,13 +272,17 @@ export class ElementRequestsController {
       const button = this.control("elementOpenRequest", () => this.onSelect(entry.id));
       const method = element("span", "http-method", entry.method); method.dataset.method = entry.method;
       button.classList.add("element-request");
-      button.replaceChildren(method, element("span", "element-request-name", entry.name), element("span", `element-relation element-relation-${relation.kind}`, t(relation.kind === "resource" ? "elementResource" : "elementDataMatch")));
+      const badge = element("span", `element-relation element-relation-${relation.kind}`, t(relation.kind === "resource" ? "elementResourceShort" : "elementDataMatchShort"));
+      badge.title = t(relation.kind === "resource" ? "elementResource" : "elementDataMatch");
+      button.replaceChildren(method, element("span", "element-request-name", entry.name.split("?")[0] || entry.name), badge);
       button.title = entry.url;
       button.setAttribute("aria-label", `${entry.method} ${entry.url}`);
       const evidence = relation.kind === "resource" ? `${t(`elementResource_${relation.resource.kind}`)}: ${relation.resource.url}`
         : relation.comparison ? `${relation.path}: ${relation.value} → ${relation.sample} (${t(`elementComparison_${relation.comparison.replaceAll("-", "_")}`)})` : `${relation.path}: ${relation.value}`;
-      const description = element("div", "element-evidence", evidence);
+      const description = element("div", "element-evidence", relation.kind === "data" && relation.comparison ? `${relation.path} → ${relation.sample}` : evidence);
+      description.hidden = relation.kind === "resource";
       description.title = evidence;
+      button.title = `${entry.url}\n${evidence}\n${badge.title}`;
       item.append(button, description); this.list.append(item);
     }
     if (this.relations.size > 80) this.list.append(element("li", "element-evidence", t("elementListLimited")));
@@ -259,10 +296,13 @@ export class ElementRequestsController {
     window.removeEventListener(PANEL_SHOWN_EVENT, this.shown);
     window.removeEventListener(PANEL_HIDDEN_EVENT, this.hidden);
     window.removeEventListener("keydown", this.escape, true);
+    window.removeEventListener("pointerdown", this.dismissInfo);
   }
 
   private displayPicker(): void {
-    this.pick.textContent = t(this.picker.enabled ? "elementPickerPause" : "elementPickerStart");
+    this.pick.textContent = t(this.picker.enabled ? "elementPauseShort" : "elementPickShort");
+    this.pick.setAttribute("aria-label", t(this.picker.enabled ? "elementPickerPause" : "elementPickerStart"));
+    this.pick.title = t(`elementPicker_${this.pickerState}`);
     this.pick.setAttribute("aria-pressed", String(this.picker.enabled));
     this.pick.disabled = this.pickerState === "starting";
     this.pickerHint.textContent = t(`elementPicker_${this.pickerState}`);

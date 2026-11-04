@@ -187,5 +187,18 @@
   "elementPicker_starting": {"message":"Starting the page element picker…"},
   "elementPicker_picking": {"message":"Click an element on the page. Clicks select elements; Esc or Pause picking restores normal page interaction."},
   "elementPicker_paused": {"message":"Picking is paused. The page works normally; use Pick elements to resume."},
-  "elementPicker_unavailable": {"message":"The page picker is unavailable here. Try Pick elements again or select an element in Elements."}
+  "elementPicker_unavailable": {"message":"The page picker is unavailable here. Try Pick elements again or select an element in Elements."},
+  "elementRelatedShort": {"message":"Related only"},
+  "elementRefreshShort": {"message":"Refresh"},
+  "elementRescanShort": {"message":"Rescan"},
+  "elementPauseShort": {"message":"Pause"},
+  "elementPickShort": {"message":"Pick"},
+  "elementDataMatchShort": {"message":"Data match"},
+  "elementResourceShort": {"message":"Resource"},
+  "elementMatchesShort": {"message":"Matches: $COUNT$","placeholders":{"count":{"content":"$1"}}},
+  "elementScanningShort": {"message":"Checking: $COUNT$…","placeholders":{"count":{"content":"$1"}}},
+  "elementErrorShort": {"message":"Inspection failed"},
+  "elementSelectShort": {"message":"Select an element"},
+  "elementAnalysisInfo": {"message":"Analysis details and help"},
+  "elementAnalysisIncomplete": {"message":"Partial results. Open analysis details."}
 }

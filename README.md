@@ -39,9 +39,9 @@ Open `chrome://extensions` in a Chromium browser, enable Developer mode and load
 
 To use the DevTools panel, open a website, open DevTools and select **Odinet** (it may be under the `»` menu). After reloading the extension, close and reopen DevTools so the new panel can register.
 
-To inspect a component, open **Odinet**, enable **Element requests**, and click the component on the page. Subsequent clicks select other elements while Odinet stays open. Press **Esc** or **Pause picking** to restore normal page interaction while keeping the results; **Pick elements** resumes selection. Picking pauses when another DevTools panel is opened and resumes when returning to Odinet, unless explicitly paused. Closing the mode or DevTools removes the picker. Native Elements selection remains available as a fallback.
+To inspect a component, open **Odinet**, enable **Element requests**, and click the component on the page. Subsequent clicks select other elements while Odinet stays open. Press **Esc** or **Pause** to restore normal page interaction while keeping the results; **Pick** resumes selection. Picking pauses when another DevTools panel is opened and resumes when returning to Odinet, unless explicitly paused. Closing the mode or DevTools removes the picker. Native Elements selection remains available as a fallback.
 
-Open a match to see its request details. **Only related requests** filters the main table; **Refresh element** reads the chosen element again after it changes, and **Rescan responses** repeats analysis of the existing snapshot. See the [page picker](docs/images/element-picker.png) and [request evidence](docs/images/element-requests.png).
+Open a match to see its request details. **Related only** filters the main table; **Refresh** reads the chosen element again after it changes, and **Rescan** repeats analysis of the existing snapshot. See the [page picker](docs/images/element-picker.png) and [request evidence](docs/images/element-requests.png).
 
 ## Scope and privacy
 

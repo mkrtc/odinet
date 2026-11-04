@@ -187,5 +187,18 @@
   "elementPicker_starting": {"message":"Запуск выбора элементов на странице…"},
   "elementPicker_picking": {"message":"Нажмите на элемент страницы. Клики выбирают элементы; Esc или «Приостановить выбор» возвращает обычную работу с сайтом."},
   "elementPicker_paused": {"message":"Выбор приостановлен. Сайт работает как обычно; нажмите «Выбирать элементы», чтобы продолжить."},
-  "elementPicker_unavailable": {"message":"Выбор на странице недоступен. Повторите запуск или выберите элемент в Elements."}
+  "elementPicker_unavailable": {"message":"Выбор на странице недоступен. Повторите запуск или выберите элемент в Elements."},
+  "elementRelatedShort": {"message":"Связанные"},
+  "elementRefreshShort": {"message":"Обновить"},
+  "elementRescanShort": {"message":"Ответы"},
+  "elementPauseShort": {"message":"Пауза"},
+  "elementPickShort": {"message":"Выбрать"},
+  "elementDataMatchShort": {"message":"Совпадение"},
+  "elementResourceShort": {"message":"Ресурс"},
+  "elementMatchesShort": {"message":"Найдено: $COUNT$","placeholders":{"count":{"content":"$1"}}},
+  "elementScanningShort": {"message":"Проверка: $COUNT$…","placeholders":{"count":{"content":"$1"}}},
+  "elementErrorShort": {"message":"Ошибка чтения"},
+  "elementSelectShort": {"message":"Выберите элемент"},
+  "elementAnalysisInfo": {"message":"Подробности анализа и справка"},
+  "elementAnalysisIncomplete": {"message":"Неполные результаты. Откройте подробности анализа."}
 }
