@@ -306,7 +306,7 @@ function render(): void {
     th.setAttribute("aria-sort", th.dataset.column === sortId ? sortDirection > 0 ? "ascending" : "descending" : "none");
   }
   empty.hidden = visible.length > 0;
-  required<HTMLElement>("#empty-title").textContent = t(entries.length ? "noMatchingRequests" : source.recording ? "recordingActivity" : "recordingPaused");
+  required<HTMLElement>("#empty-title").textContent = t(elementRequests.filtering && elementRequests.searching ? "elementSearchingTitle" : entries.length ? "noMatchingRequests" : source.recording ? "recordingActivity" : "recordingPaused");
   required<HTMLElement>("#empty-description").textContent = t(entries.length ? elementRequests.filtering ? "elementEmptyHelp" : "changeFilters" : "reloadToCapture");
   required<HTMLButtonElement>("#reload").hidden = entries.length > 0;
   const transfer = entries.reduce((sum, entry) => sum + (entry.transferSize ?? 0), 0);

@@ -14,7 +14,8 @@ describe("localization", () => {
 
     expect(Object.keys(ru).sort()).toEqual(Object.keys(en).sort());
     for (const catalog of [en, ru]) {
-      for (const entry of Object.values(catalog)) {
+      for (const [key, entry] of Object.entries(catalog)) {
+        expect(key).toMatch(/^[A-Za-z0-9_@]+$/);
         expect(entry.message.trim().length).toBeGreaterThan(0);
       }
     }

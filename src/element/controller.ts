@@ -100,7 +100,10 @@ export class ElementRequestsController {
       this.error = true;
       console.error("Odinet: failed to inspect selected element", error);
     } finally {
-      if (generation === this.generation) { this.capturePending = false; this.display(); this.onChange(); }
+      if (generation === this.generation) {
+        this.capturePending = false; this.display(); this.onChange();
+        if (this.snapshot?.samples.length) void this.scanData();
+      }
     }
   }
 
@@ -150,6 +153,7 @@ export class ElementRequestsController {
   }
 
   get filtering(): boolean { return this.active && this.snapshot !== null && this.onlyRelated.checked; }
+  get searching(): boolean { return this.capturePending || this.scanning; }
 
   includes(entry: NetworkEntry): boolean { return !this.filtering || this.relations.has(entry.id); }
 
@@ -158,7 +162,8 @@ export class ElementRequestsController {
     const snapshot = this.snapshot;
     const generation = this.generation;
     this.scanning = true; this.checked = 0; this.scanResult = null;
-    this.display();
+    this.error = false;
+    this.display(); this.onChange();
     try {
       const result = await scanResponseData(snapshot, this.entries, this.readContent, this.abort.signal, (checked) => {
         if (generation !== this.generation) return;
@@ -181,6 +186,7 @@ export class ElementRequestsController {
     const key = this.error ? "elementReadError" : this.capturePending ? "elementReading" : !this.snapshot ? "elementSelectHelp" : this.scanning ? "elementScanning" : "elementMatchCount";
     let text = t(key, [String(this.scanning ? this.checked : this.relations.size)]);
     if (this.scanResult && !this.scanning && !this.error) text = t("elementAnalysisComplete", [String(this.relations.size), String(this.scanResult.checked)]);
+    if (this.scanResult?.candidates === 0 && !this.scanning) text += ` ${t("elementNoResponses")}`;
     if (this.snapshot?.limited || this.scanResult?.limited) text += ` ${t("elementScanLimited")}`;
     if (this.scanResult?.unavailable) text += ` ${t("elementUnavailable", String(this.scanResult.unavailable))}`;
     if (this.snapshot && !this.scanning && !this.scanResult && !this.snapshot.samples.length) text += ` ${t("elementNoSamples")}`;
@@ -209,7 +215,8 @@ export class ElementRequestsController {
       button.replaceChildren(method, element("span", "element-request-name", entry.name), element("span", `element-relation element-relation-${relation.kind}`, t(relation.kind === "resource" ? "elementResource" : "elementDataMatch")));
       button.title = entry.url;
       button.setAttribute("aria-label", `${entry.method} ${entry.url}`);
-      const evidence = relation.kind === "resource" ? `${t(`elementResource_${relation.resource.kind}`)}: ${relation.resource.url}` : `${relation.path}: ${relation.value}`;
+      const evidence = relation.kind === "resource" ? `${t(`elementResource_${relation.resource.kind}`)}: ${relation.resource.url}`
+        : relation.comparison ? `${relation.path}: ${relation.value} → ${relation.sample} (${t(`elementComparison_${relation.comparison.replaceAll("-", "_")}`)})` : `${relation.path}: ${relation.value}`;
       const description = element("div", "element-evidence", evidence);
       description.title = evidence;
       item.append(button, description); this.list.append(item);

@@ -1,10 +1,11 @@
 import type { NetworkEntry } from "../network/model";
 import type { ResponseContent } from "../network/source";
-import { isContainer, jsonPath, parseJsonDocument, walkJson } from "../ui/json-document";
+import { isContainer, jsonPath, parseJsonDocument, rawValue, walkJson } from "../ui/json-document";
 import type { ElementResource, ElementSnapshot } from "./snapshot";
+import { createNumericMatcher, type NumericComparison } from "./numeric";
 
-export type ElementRelation = { kind: "resource"; resource: ElementResource } | { kind: "data"; value: string; path: string };
-export interface ScanResult { matches: Map<string, ElementRelation>; checked: number; unavailable: number; limited: boolean }
+export type ElementRelation = { kind: "resource"; resource: ElementResource } | { kind: "data"; value: string; path: string; sample?: string; comparison?: NumericComparison };
+export interface ScanResult { matches: Map<string, ElementRelation>; checked: number; unavailable: number; limited: boolean; candidates: number }
 export const SCAN_REQUEST_LIMIT = 60;
 export const SCAN_BODY_LIMIT = 256 * 1024;
 const TOTAL_BODY_LIMIT = 4 * 1024 * 1024;
@@ -20,15 +21,29 @@ export function resourceRelation(snapshot: ElementSnapshot, entry: NetworkEntry)
 }
 
 export function dataRelation(snapshot: ElementSnapshot, source: string): ElementRelation | undefined {
-  const document = parseJsonDocument(source);
-  if (!document) return undefined;
-  const samples = new Set(snapshot.samples.map((value) => value.replace(/\s+/g, " ").trim()));
-  for (const { node } of walkJson(document.root)) {
-    if (isContainer(node) || typeof node.value !== "string") continue;
-    const value = node.value.replace(/\s+/g, " ").trim();
-    if (samples.has(value)) return { kind: "data", value, path: jsonPath(node) };
-  }
-  return undefined;
+  return createDataMatcher(snapshot)(source);
+}
+
+function createDataMatcher(snapshot: ElementSnapshot): (source: string) => ElementRelation | undefined {
+  const samples = new Set(snapshot.samples.filter((value) => value.length >= 8).map((value) => value.replace(/\s+/g, " ").trim()));
+  const numeric = createNumericMatcher(snapshot.samples, snapshot.locale);
+  return (source) => {
+    const document = parseJsonDocument(source);
+    if (!document) return undefined;
+    let best: ElementRelation | undefined;
+    let priority = -1;
+    for (const { node, key } of walkJson(document.root)) {
+      if (isContainer(node) || (node.type !== "number" && node.type !== "string")) continue;
+      const value = node.type === "number" ? rawValue(document, node) : String(node.value).replace(/\s+/g, " ").trim();
+      if (node.type === "string" && samples.has(value)) return { kind: "data", value, path: jsonPath(node) };
+      const match = numeric(value, key);
+      if (match && match.priority > priority) {
+        best = { kind: "data", value, path: jsonPath(node), sample: match.sample, comparison: match.comparison };
+        priority = match.priority;
+      }
+    }
+    return best;
+  };
 }
 
 function readForScan(id: string, readContent: (id: string) => Promise<ResponseContent>, signal: AbortSignal, timeout: number): Promise<ResponseContent> {
@@ -52,7 +67,8 @@ function readForScan(id: string, readContent: (id: string) => Promise<ResponseCo
 export async function scanResponseData(snapshot: ElementSnapshot, entries: readonly NetworkEntry[], readContent: (id: string) => Promise<ResponseContent>, signal: AbortSignal, onProgress: (checked: number) => void = () => {}): Promise<ScanResult> {
   const candidates = entries.filter((entry) => entry.group === "fetch" && entry.state === "completed" && entry.startedAt >= snapshot.documentStartedAt && entry.startedAt + (entry.duration ?? 0) <= snapshot.capturedAt)
     .sort((a, b) => b.startedAt - a.startedAt);
-  const result: ScanResult = { matches: new Map(), checked: 0, unavailable: 0, limited: candidates.length > SCAN_REQUEST_LIMIT };
+  const result: ScanResult = { matches: new Map(), checked: 0, unavailable: 0, limited: candidates.length > SCAN_REQUEST_LIMIT, candidates: candidates.length };
+  const matchData = createDataMatcher(snapshot);
   let total = 0;
   const deadline = Date.now() + 10000;
   if (!snapshot.samples.length) return result;
@@ -66,7 +82,7 @@ export async function scanResponseData(snapshot: ElementSnapshot, entries: reado
       if (response.truncated || response.encoding || response.content.length > SCAN_BODY_LIMIT) { result.limited = true; continue; }
       total += response.content.length;
       if (total > TOTAL_BODY_LIMIT) { result.limited = true; break; }
-      const relation = dataRelation(snapshot, response.content);
+      const relation = matchData(response.content);
       if (relation) result.matches.set(entry.id, relation);
       result.checked++;
     } catch { if (!signal.aborted) result.unavailable++; }

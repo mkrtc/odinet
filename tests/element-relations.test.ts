@@ -6,7 +6,7 @@ import { harRequest } from "./fixtures/har";
 
 const snapshot = (): ElementSnapshot => ({
   label: "article#product", pageUrl: "https://example.test/", capturedAt: Date.parse("2026-10-29T12:01:00Z"),
-  documentStartedAt: Date.parse("2026-10-29T11:59:00Z"), visited: 12, limited: false,
+  documentStartedAt: Date.parse("2026-10-29T11:59:00Z"), locale: "en-US", visited: 12, limited: false,
   resources: [{ kind: "image", url: "https://example.test/cover.svg" }], samples: ["Odinet Field Research"],
 });
 

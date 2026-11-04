@@ -24,6 +24,7 @@
     "typescript": "7.0.2"
   },
   "dependencies": {
+    "decimal.js": "10.6.0",
     "jsonc-parser": "3.3.1"
   }
 }
