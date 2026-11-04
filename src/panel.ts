@@ -6,6 +6,7 @@ import { bytes, milliseconds, t } from "./ui/i18n";
 import { DETAIL_TABS, type DetailTabId } from "./ui/request-details";
 import { isRussianLocale } from "./shared/localization";
 import { ElementRequestsController } from "./element/controller";
+import { RequestCopyMenu } from "./ui/request-copy";
 
 const table = required<HTMLTableElement>("#network-table");
 const tableBody = required<HTMLTableSectionElement>("#network-rows");
@@ -73,6 +74,13 @@ const source = new DevtoolsNetworkSource((next) => {
   console.error("Odinet: failed to read DevTools requests", error);
 });
 
+const requestCopy = new RequestCopyMenu((id) => source.readContent(id));
+chrome.devtools.network.onNavigated.addListener(requestCopy.cancel);
+function showRequestMenu(entry: NetworkEntry, event: MouseEvent): void {
+  const trigger = event.currentTarget instanceof HTMLElement ? event.currentTarget : table;
+  requestCopy.open(entry, event, trigger);
+}
+
 const elementRequests = new ElementRequestsController(
   required<HTMLButtonElement>("#element-mode"), required<HTMLElement>("#element-requests"), render,
   (id) => {
@@ -81,6 +89,7 @@ const elementRequests = new ElementRequestsController(
     render(); selectRequest(id);
   },
   (id) => source.readContent(id),
+  showRequestMenu,
 );
 
 function selectRequest(id: string, focus = false): void {
@@ -259,6 +268,10 @@ function render(): void {
       row = element("tr");
       row.dataset.id = entry.id;
       row.addEventListener("click", () => selectRequest(entry.id));
+      row.addEventListener("contextmenu", (event) => {
+        const current = entries.find((item) => item.id === entry.id);
+        if (current) { selectRequest(current.id); showRequestMenu(current, event); }
+      });
       rows.set(entry.id, row);
     }
     row.classList.toggle("request-error", entry.state === "failed" || entry.status >= 400);
@@ -326,6 +339,10 @@ tableBody.addEventListener("keydown", (event) => {
 });
 filter.addEventListener("input", () => { scroller.scrollTop = 0; render(); });
 required<HTMLButtonElement>("#close-details").addEventListener("click", closeDetails);
+required<HTMLElement>("#selected-request").addEventListener("contextmenu", (event) => {
+  const entry = entries.find((item) => item.id === selectedId);
+  if (entry) showRequestMenu(entry, event);
+});
 required<HTMLButtonElement>("#reload").addEventListener("click", () => chrome.devtools.inspectedWindow.reload());
 required<HTMLInputElement>("#preserve").addEventListener("change", (event) => { source.preserveLog = (event.currentTarget as HTMLInputElement).checked; });
 function updateRecordButton(): void {
@@ -336,6 +353,7 @@ function updateRecordButton(): void {
 recordButton.addEventListener("click", () => { source.recording = !source.recording; updateRecordButton(); render(); });
 updateRecordButton();
 clearButton.addEventListener("click", async () => {
+  requestCopy.cancel();
   source.clear();
   notice.hidden = true;
   clearButton.disabled = true;
@@ -380,6 +398,8 @@ observer.observe(workspace);
 window.addEventListener("pagehide", () => {
   if (renderTimer !== undefined) clearTimeout(renderTimer);
   elementRequests.dispose();
+  requestCopy.dispose();
+  chrome.devtools.network.onNavigated.removeListener(requestCopy.cancel);
   observer.disconnect(); detailAbort.abort(); source.dispose();
 }, { once: true });
 updateColumns();

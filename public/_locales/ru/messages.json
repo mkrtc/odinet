@@ -200,5 +200,17 @@
   "elementErrorShort": {"message":"Ошибка чтения"},
   "elementSelectShort": {"message":"Выберите элемент"},
   "elementAnalysisInfo": {"message":"Подробности анализа и справка"},
-  "elementAnalysisIncomplete": {"message":"Неполные результаты. Откройте подробности анализа."}
+  "elementAnalysisIncomplete": {"message":"Неполные результаты. Откройте подробности анализа."},
+  "copyMenu": {"message":"Копировать"},
+  "copyRequestMenu": {"message":"Запрос"},
+  "copyResponse": {"message":"Ответ"},
+  "copyForAgent": {"message":"Для агента"},
+  "copyReadingResponse": {"message":"Чтение ответа…"},
+  "copyEncodedDone": {"message":"Скопировано в base64"},
+  "copyFailed": {"message":"Не удалось скопировать данные."},
+  "copyInvalidRequest": {"message":"Сохранённый запрос нельзя экспортировать."},
+  "copyBodyUnavailable": {"message":"Тело запроса недоступно, двоичное или слишком большое для экспорта."},
+  "copyFetchBodyUnsupported": {"message":"Fetch не поддерживает тело для GET и HEAD. Используйте cURL или Python."},
+  "copyResponseUnavailable": {"message":"Тело ответа недоступно. Перезагрузите страницу для его захвата."},
+  "copyResponseTooLarge": {"message":"Ответ превышает лимит копирования 2 МиБ. Используйте штатную панель Network."}
 }

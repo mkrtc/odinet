@@ -200,5 +200,17 @@
   "elementErrorShort": {"message":"Inspection failed"},
   "elementSelectShort": {"message":"Select an element"},
   "elementAnalysisInfo": {"message":"Analysis details and help"},
-  "elementAnalysisIncomplete": {"message":"Partial results. Open analysis details."}
+  "elementAnalysisIncomplete": {"message":"Partial results. Open analysis details."},
+  "copyMenu": {"message":"Copy"},
+  "copyRequestMenu": {"message":"Copy request"},
+  "copyResponse": {"message":"Copy response"},
+  "copyForAgent": {"message":"Copy for agent"},
+  "copyReadingResponse": {"message":"Reading response…"},
+  "copyEncodedDone": {"message":"Copied as base64"},
+  "copyFailed": {"message":"Could not copy the data."},
+  "copyInvalidRequest": {"message":"The captured request cannot be exported."},
+  "copyBodyUnavailable": {"message":"The request body is unavailable, binary or too large to export."},
+  "copyFetchBodyUnsupported": {"message":"Fetch does not support a body for GET or HEAD. Use cURL or Python."},
+  "copyResponseUnavailable": {"message":"The response body is unavailable. Reload the page to capture it."},
+  "copyResponseTooLarge": {"message":"The response exceeds the 2 MiB copy limit. Use the native Network panel."}
 }

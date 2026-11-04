@@ -50,6 +50,14 @@ Picker controls, guide text and overlay instructions use the EN/RU catalogs. The
 
 API contracts: [selected-window evaluation](https://developer.chrome.com/docs/extensions/reference/api/devtools/inspectedWindow), [panel visibility and Elements events](https://developer.chrome.com/docs/extensions/reference/api/devtools/panels), [isolated script injection](https://developer.chrome.com/docs/extensions/reference/api/scripting), [runtime ports](https://developer.chrome.com/docs/extensions/develop/concepts/messaging), and [recorded response content](https://developer.chrome.com/docs/extensions/reference/api/devtools/network).
 
+## Request copy menu
+
+`src/ui/context-menu.ts` renders nested menus with keyboard navigation, viewport-aware placement and focus restoration. Request tables, element match rows and the selected request heading use the same `RequestCopyMenu`. Escape closes the menu without pausing the element picker or closing request details. `src/ui/request-copy.ts` loads bodies on demand, writes only on an explicit copy action, and offers a selected read-only field if clipboard access fails. New menu actions, log clearing, navigation and panel disposal invalidate older asynchronous exports. No replay code is executed.
+
+`src/network/export.ts` serializes available HAR request text to cURL (POSIX/bash), browser Fetch, Node.js native fetch (18+, .mjs) and Python Requests. Browser-managed headers use the browser session; server formats retain captured authorization/cookies. Stale transport headers are omitted. Shell arguments and code string literals are escaped; cURL uses data-raw so a leading @ cannot read a local file. Missing upload/body bytes fail explicitly. Response copies preserve raw text, retain base64 encoding for binary data and refuse truncated content.
+
+`src/network/redaction.ts` implements agent-copy credential removal on request and response headers, URL userinfo/query fields, JSON keys and URL-encoded forms. JSON edits operate on source ranges, preserving duplicate keys and numeric precision. Credential-bearing containers are replaced as a whole to avoid overlapping edits. Agent output labels unavailable, binary, undecodable and truncated response bodies instead of pretending they are complete. Multipart body content is omitted from agent copies. Markdown fences expand when captured text contains backticks. Captured content is marked as untrusted data. The policy recognizes known secret names/patterns and does not promise general payload anonymization.
+
 ## Chromium research
 
 Reviewed the official ChromeDevTools/devtools-frontend mirror at revision `a0c962bc04993dd4b0843f34fa0d2b2afa6d0936`:

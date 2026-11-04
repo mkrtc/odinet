@@ -46,6 +46,7 @@ export class ElementRequestsController {
     private readonly onChange: () => void,
     private readonly onSelect: (id: string) => void,
     private readonly readContent: (id: string) => Promise<ResponseContent>,
+    private readonly onContext: (entry: NetworkEntry, event: MouseEvent) => void = () => {},
     private readonly api = chrome.devtools,
   ) {
     toggle.textContent = t("elementRequests");
@@ -105,6 +106,7 @@ export class ElementRequestsController {
     if (event.target instanceof Node && !this.info.contains(event.target)) this.info.open = false;
   };
   private readonly escape = (event: KeyboardEvent): void => {
+    if (event.target instanceof Element && event.target.closest('[role="menu"]')) return;
     if (event.key === "Escape" && this.info.open) {
       event.preventDefault(); event.stopImmediatePropagation(); this.info.open = false; this.infoToggle.focus(); return;
     }
@@ -271,6 +273,7 @@ export class ElementRequestsController {
       if (!relation) continue;
       const item = element("li");
       const button = this.control("elementOpenRequest", () => this.onSelect(entry.id));
+      button.addEventListener("contextmenu", (event) => this.onContext(entry, event));
       const method = element("span", "http-method", entry.method); method.dataset.method = entry.method;
       button.classList.add("element-request");
       const badge = element("span", `element-relation element-relation-${relation.kind}`, t(relation.kind === "resource" ? "elementResourceShort" : "elementDataMatchShort"));

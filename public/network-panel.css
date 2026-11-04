@@ -112,6 +112,14 @@ th[aria-sort="descending"] .sort-button::after { content: " ▾"; color: var(--m
 .network-table tbody tr:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
 .request-error { color: var(--error); }
 .cell-size, .cell-time { text-align: right; font-variant-numeric: tabular-nums; }
+.context-menu { position: fixed; z-index: 50; min-width: min(190px, calc(100vw - 8px)); max-width: calc(100vw - 8px); max-height: calc(100vh - 8px); overflow-y: auto; padding: 4px; border: 1px solid var(--divider); border-radius: 4px; background: var(--surface); box-shadow: 0 3px 12px oklch(10% .005 260 / .3); font-size: 12px; }
+.context-menu-item { display: flex; align-items: center; gap: 20px; width: 100%; min-height: 25px; padding: 4px 8px; border: 0; border-radius: 2px; background: transparent; color: var(--text); text-align: left; }
+.context-menu-item:hover:not(:disabled), .context-menu-item:focus-visible, .context-menu-item[aria-expanded="true"] { background: var(--selected); outline: none; }
+.context-menu-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.context-menu-arrow { color: var(--muted); }
+.copy-feedback { position: fixed; z-index: 60; right: 8px; bottom: 32px; display: grid; grid-template-columns: 1fr auto; gap: 6px; max-width: min(520px, calc(100vw - 16px)); padding: 8px 10px; border: 1px solid var(--divider); border-radius: 4px; background: var(--surface); box-shadow: 0 3px 12px oklch(10% .005 260 / .3); }
+.copy-message { align-self: center; font-size: 12px; line-height: 1.5; }
+.copy-manual { grid-column: 1 / -1; width: min(480px, calc(100vw - 40px)); min-height: 100px; max-height: 35vh; padding: 6px; resize: vertical; background: var(--surface); color: var(--text); border: 1px solid var(--divider); font: 11px/1.5 ui-monospace, monospace; }
 .http-method { font: 600 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text); white-space: nowrap; }
 .http-method[data-method="GET"], .http-method[data-method="HEAD"] { color: var(--json-key); }
 .http-method[data-method="POST"] { color: var(--json-string); }
