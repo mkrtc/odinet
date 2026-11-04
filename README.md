@@ -17,7 +17,7 @@ Screenshots use a local test site. [Request details](docs/images/request-details
 - Localizes the manifest and popup into English and Russian using the browser UI language; English is the fallback.
 - The DevTools panel provides a sortable request table with Name, Method, Host, Path, Status, Type, Initiator, Size, Time and Waterfall columns. Columns can be hidden and resized.
 - Select a request to inspect Headers, Payload, Preview, Response, Initiator, Timing and Cookies. HTTP methods remain visible when details are open; response content is loaded on demand.
-- JSON has a syntax highlighted tree and formatted text view, search across keys and values, paged arrays, and copy actions for the document, selected value and JSONPath. Formatting and copying preserve original numeric literals and duplicate keys.
+- JSON has a syntax highlighted tree and formatted text view, search across keys and values, paged arrays, and copy actions for the document, selected value and JSONPath. Hover or select any tree row to copy its complete value, including collapsed objects and arrays. Formatting and copying preserve original numeric literals and duplicate keys.
 - Text and resource type filters, pause/resume recording, Preserve log, keyboard selection and resizable details support the native Network workflow.
 - Clearing the DevTools panel removes its records and the inspected tab's background records. The popup still shows and clears the whole background session log.
 

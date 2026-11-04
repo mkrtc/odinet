@@ -126,6 +126,8 @@
   "jsonCopied": {"message":"Copied to clipboard"},
   "jsonCopyDocument": {"message":"Copy JSON"},
   "jsonCopyValue": {"message":"Copy value"},
+  "jsonCopyNode": {"message":"Copy"},
+  "jsonCopyNodeLabel": {"message":"Copy value at $PATH$","placeholders":{"path":{"content":"$1"}}},
   "jsonCopyPath": {"message":"Copy path"},
   "jsonShowValue": {"message":"Show full value"},
   "jsonExpandLevel": {"message":"Expand level"},

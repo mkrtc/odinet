@@ -126,6 +126,8 @@
   "jsonCopied": {"message":"Скопировано в буфер обмена"},
   "jsonCopyDocument": {"message":"Копировать JSON"},
   "jsonCopyValue": {"message":"Копировать значение"},
+  "jsonCopyNode": {"message":"Копировать"},
+  "jsonCopyNodeLabel": {"message":"Копировать значение $PATH$","placeholders":{"path":{"content":"$1"}}},
   "jsonCopyPath": {"message":"Копировать путь"},
   "jsonShowValue": {"message":"Показать целиком"},
   "jsonExpandLevel": {"message":"Раскрыть уровень"},

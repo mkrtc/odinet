@@ -18,7 +18,7 @@ Column descriptors own display and sorting. Detail tabs own their rendering. The
 
 `src/ui/json-document.ts` parses a strict JSON source tree with jsonc-parser. Values are read and copied from source ranges, preserving large numeric IDs, exponent notation, string escapes and duplicate object keys. `src/ui/json-viewer.ts` renders the tree and highlighted text without executing captured markup.
 
-The viewer provides keyboard navigation, a selected JSONPath, value/document/path copy actions and cancellable key/value search. Arrays and wide objects show 100 children per page. Search reveals the required ancestor pages. A tree render expands at most 2,500 rows and search retains at most 500 matches. Large source views keep all text, with highlighting bounded to 10,000 tokens. Formatting falls back to the original source above the depth/size budget. Clipboard failures expose a selected, read-only copy field.
+The viewer provides keyboard navigation, a selected JSONPath, value/document/path copy actions and cancellable key/value search. Every tree row has a copy button, revealed on hover, selection or keyboard focus. It copies the complete value without its property name, including collapsed branches and children outside the current page. Arrays and wide objects show 100 children per page. Search reveals the required ancestor pages. A tree render expands at most 2,500 rows and search retains at most 500 matches. Large source views keep all text, with highlighting bounded to 10,000 tokens. Formatting falls back to the original source above the depth/size budget. Clipboard failures expose a selected, read-only copy field.
 
 ## Chromium research
 

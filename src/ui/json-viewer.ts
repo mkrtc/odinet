@@ -73,7 +73,7 @@ export function createJsonViewer(data: JsonDocument, signal: AbortSignal, initia
   let limitedMatches = false;
   const expanded = new Set<number>([data.root.offset]);
   const pages = new Map<number, number>();
-  const rendered = new Map<number, { node: JsonNode; row: HTMLElement; item: HTMLElement }>();
+  const rendered = new Map<number, { node: JsonNode; row: HTMLElement; item: HTMLElement; copy: HTMLButtonElement }>();
   const initial = [{ node: data.root, depth: 0 }];
   while (initial.length) {
     const item = initial.pop();
@@ -110,6 +110,7 @@ export function createJsonViewer(data: JsonDocument, signal: AbortSignal, initia
       const active = item.node === node;
       item.item.setAttribute("aria-selected", String(active));
       item.item.tabIndex = active ? 0 : -1;
+      item.copy.tabIndex = active ? 0 : -1;
     }
     if (focus) rendered.get(node.offset)?.item.focus({ preventScroll: true });
   }
@@ -163,6 +164,17 @@ export function createJsonViewer(data: JsonDocument, signal: AbortSignal, initia
         row.append(value);
         if (raw.length > 240) row.append(button("jsonShowValue", () => { value.textContent = raw; row.classList.add("json-full-value"); }, "json-inline-button"));
       }
+      const copyValue = button("jsonCopyNode", () => {
+        select(node);
+        void copy(selectedText());
+      }, "json-button json-copy-node");
+      const copyLabel = t("jsonCopyNodeLabel", jsonPath(node));
+      copyValue.title = copyLabel;
+      copyValue.setAttribute("aria-label", copyLabel);
+      copyValue.addEventListener("click", (event) => event.stopPropagation());
+      copyValue.addEventListener("dblclick", (event) => event.stopPropagation());
+      copyValue.addEventListener("focus", () => select(node));
+      row.append(copyValue);
       row.classList.toggle("json-match", matches.includes(node));
       row.classList.toggle("json-current-match", matches[matchIndex] === node);
       item.setAttribute("aria-label", `${key} ${isContainer(node) ? node.type : rawValue(data, node).slice(0, 240)}`);
@@ -170,7 +182,7 @@ export function createJsonViewer(data: JsonDocument, signal: AbortSignal, initia
       row.addEventListener("dblclick", () => { if (container) toggleNode(node); });
       item.addEventListener("focus", () => select(node));
       item.append(row);
-      rendered.set(node.offset, { node, row, item });
+      rendered.set(node.offset, { node, row, item, copy: copyValue });
       rows++;
       if (open) {
         const children = element("div", "json-children");
