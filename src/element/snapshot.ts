@@ -71,6 +71,7 @@ export function collectElement(candidate: unknown): ElementSnapshot | null {
     if (node.nodeType !== 1 && node.nodeType !== 11) continue;
     if (node.nodeType === 1) {
       const item = node as Element;
+      if (item.hasAttribute("data-odinet-picker")) continue;
       const tag = item.localName;
       if (["script", "style", "noscript", "template", "input", "textarea", "select"].includes(tag)) continue;
       if (tag === "img") addResource((item as HTMLImageElement).currentSrc || item.getAttribute("src") || "", "image");

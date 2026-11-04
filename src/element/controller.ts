@@ -4,6 +4,8 @@ import { element } from "../ui/dom";
 import { t } from "../ui/i18n";
 import { resourceRelation, scanResponseData, type ElementRelation, type ScanResult } from "./relations";
 import { collectElement, readElementSnapshot, type ElementSnapshot } from "./snapshot";
+import { ElementPickerClient, type PickerState } from "./picker-client";
+import { PANEL_HIDDEN_EVENT, PANEL_SHOWN_EVENT } from "./picker-protocol";
 
 export class ElementRequestsController {
   private active = false;
@@ -19,12 +21,20 @@ export class ElementRequestsController {
   private checked = 0;
   private error = false;
   private evidenceKey = "";
+  private pageSelection = false;
+  private pickerState: PickerState = "paused";
+  private readonly picker: ElementPickerClient;
+  private readonly pick = this.control("elementPickerStart", () => { if (this.picker.enabled) this.picker.pause(); else this.picker.start(); });
+  private readonly pickerHint = element("p", "element-picker-hint");
   private readonly label = element("code", "element-label");
   private readonly status = element("p", "element-status");
   private readonly explanation = element("p", "element-explanation", t("elementLimitations"));
   private readonly list = element("ul", "element-matches");
   private readonly onlyRelated = element("input");
-  private readonly refresh = this.control("elementUseSelected", () => { void this.capture(); });
+  private readonly refresh = this.control("elementUseSelected", () => {
+    if (!this.pageSelection) void this.capture();
+    else if (!this.picker.refresh()) this.picker.start();
+  });
   private readonly scan = this.control("elementFindData", () => { void this.scanData(); });
 
   constructor(
@@ -47,12 +57,20 @@ export class ElementRequestsController {
     only.append(this.onlyRelated, document.createTextNode(t("elementOnlyRelated")));
     const close = this.control("elementClose", () => this.setActive(false));
     const toolbar = element("div", "element-toolbar");
-    toolbar.append(this.label, this.refresh, this.scan, only, close);
+    toolbar.append(this.label, this.pick, this.refresh, this.scan, only, close);
     this.status.role = "status";
     this.list.setAttribute("aria-label", t("elementRelatedList"));
-    root.append(toolbar, this.status, this.list, this.explanation);
+    this.pickerHint.role = "status";
+    root.append(toolbar, this.pickerHint, this.status, this.list, this.explanation);
+    this.picker = new ElementPickerClient(api.inspectedWindow.tabId,
+      (snapshot) => { if (this.active) void this.capture(snapshot); },
+      (state) => { this.pickerState = state; this.displayPicker(); },
+    );
     this.api.panels.elements.onSelectionChanged.addListener(this.selectionChanged);
     this.api.network.onNavigated.addListener(this.navigated);
+    window.addEventListener(PANEL_SHOWN_EVENT, this.shown);
+    window.addEventListener(PANEL_HIDDEN_EVENT, this.hidden);
+    window.addEventListener("keydown", this.escape, true);
   }
 
   private control(key: string, action: () => void): HTMLButtonElement {
@@ -63,13 +81,20 @@ export class ElementRequestsController {
   }
 
   private readonly selectionChanged = (): void => { if (this.active) void this.capture(); };
-  private readonly navigated = (): void => { this.reset(); this.display(); this.onChange(); };
+  private readonly navigated = (): void => { this.reset(); if (this.active) this.picker.restart(); this.display(); this.onChange(); };
+  private readonly shown = (): void => this.picker.setVisible(true);
+  private readonly hidden = (): void => this.picker.setVisible(false);
+  private readonly escape = (event: KeyboardEvent): void => {
+    if (event.key !== "Escape" || !this.active || !this.picker.enabled) return;
+    event.preventDefault(); event.stopImmediatePropagation(); this.picker.pause();
+  };
 
   private reset(): void {
     this.generation++;
     this.abort.abort();
     this.abort = new AbortController();
     this.snapshot = null;
+    this.pageSelection = false;
     this.relations.clear();
     this.dataMatches.clear();
     this.scanning = this.capturePending = this.error = false;
@@ -81,17 +106,18 @@ export class ElementRequestsController {
     this.active = active;
     this.toggle.setAttribute("aria-pressed", String(active));
     this.root.hidden = !active;
-    if (active) void this.capture();
-    else { this.reset(); this.onChange(); this.toggle.focus(); }
+    if (active) { this.reset(); this.display(); this.onChange(); this.picker.start(); }
+    else { this.picker.stop(); this.reset(); this.onChange(); this.toggle.focus(); }
   }
 
-  private async capture(): Promise<void> {
+  private async capture(picked?: ElementSnapshot | null): Promise<void> {
     this.reset();
+    this.pageSelection = picked !== undefined;
     const generation = this.generation;
     this.capturePending = true;
     this.display(); this.onChange();
     try {
-      const value = await this.evaluateSelected(this.abort.signal);
+      const value = picked !== undefined ? picked : await this.evaluateSelected(this.abort.signal);
       if (generation !== this.generation) return;
       this.snapshot = readElementSnapshot(value);
       this.rebuild();
@@ -194,6 +220,7 @@ export class ElementRequestsController {
   }
 
   private display(): void {
+    this.displayPicker();
     this.label.textContent = this.snapshot?.label ?? t("elementNoSelection");
     this.label.title = this.snapshot ? `${this.snapshot.label}\n${this.snapshot.pageUrl}` : "";
     this.refresh.disabled = this.capturePending;
@@ -225,8 +252,19 @@ export class ElementRequestsController {
   }
 
   dispose(): void {
+    this.picker.stop();
     this.reset();
     this.api.panels.elements.onSelectionChanged.removeListener(this.selectionChanged);
     this.api.network.onNavigated.removeListener(this.navigated);
+    window.removeEventListener(PANEL_SHOWN_EVENT, this.shown);
+    window.removeEventListener(PANEL_HIDDEN_EVENT, this.hidden);
+    window.removeEventListener("keydown", this.escape, true);
+  }
+
+  private displayPicker(): void {
+    this.pick.textContent = t(this.picker.enabled ? "elementPickerPause" : "elementPickerStart");
+    this.pick.setAttribute("aria-pressed", String(this.picker.enabled));
+    this.pick.disabled = this.pickerState === "starting";
+    this.pickerHint.textContent = t(`elementPicker_${this.pickerState}`);
   }
 }

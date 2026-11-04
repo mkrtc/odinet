@@ -36,7 +36,17 @@ Budgets: 1,500 visited DOM nodes and queued nodes; computed styles for at most 2
 
 The evidence snapshot does not track later DOM mutations automatically. Users refresh the selected element after it changes. This is a foundation for future framework-aware or instrumented tracing, with provenance kept explicit.
 
-API contracts: [selected-window evaluation](https://developer.chrome.com/docs/extensions/reference/api/devtools/inspectedWindow), [Elements selection events](https://developer.chrome.com/docs/extensions/reference/api/devtools/panels#type-ElementsPanel), and [recorded response content](https://developer.chrome.com/docs/extensions/reference/api/devtools/network).
+## Direct page picking
+
+Element requests starts the page picker automatically. `src/element/picker-client.ts` owns its control port and desired picking/visibility state; `picker-broker.ts` accepts control sessions only from the extension panel, injects `element-picker.js` into the inspected tab's permitted existing frames, and routes individual frame ports to that session. Up to 128 frames are retained. Frame connections from other tabs, late connections after cancellation and stale injection results cannot activate a closed session. Control-port heartbeats keep the MV3 worker available. A disconnected owner closes its frame ports and removes their click interception.
+
+`src/element/page-picker.ts` owns highlight rendering, hover and capture listeners. The content bundle runs in the ISOLATED world, uses `composedPath()` to select inside open Shadow DOM, collects snapshots directly and never invokes `inspect()` or changes the native Elements selection. The highlight uses a closed shadow root and pointer-transparent top-layer host, with fixed positioning as a fallback. Original element styles are not overwritten. Picker markup is excluded from evidence collection. Click-related events are consumed during picking so ordinary link/button actions do not run.
+
+Escape pauses all participating frames. Pause keeps the chosen element available for Refresh element, and results stay visible. Panel onShown/onHidden events suspend picking outside Odinet and resume the intended state on return. Explicit pauses survive visibility changes. Navigation clears the old selection and starts a new session in the current document. Mode closure, pagehide, DevTools closure, connection loss and injection failures clean up listeners, overlays and retained selections. Inaccessible pages fall back to native Elements selection; frames created later may require restarting the mode.
+
+Picker controls, guide text and overlay instructions use the EN/RU catalogs. The `scripting` permission is used only for on-demand picker installation; no persistent content script is registered.
+
+API contracts: [selected-window evaluation](https://developer.chrome.com/docs/extensions/reference/api/devtools/inspectedWindow), [panel visibility and Elements events](https://developer.chrome.com/docs/extensions/reference/api/devtools/panels), [isolated script injection](https://developer.chrome.com/docs/extensions/reference/api/scripting), [runtime ports](https://developer.chrome.com/docs/extensions/develop/concepts/messaging), and [recorded response content](https://developer.chrome.com/docs/extensions/reference/api/devtools/network).
 
 ## Chromium research
 

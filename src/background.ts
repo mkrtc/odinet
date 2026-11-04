@@ -1,4 +1,7 @@
 import { applyRequestEvent, readRequests, REQUESTS_KEY, type RequestEvent } from "./shared/requests";
+import { PickerBroker } from "./element/picker-broker";
+
+new PickerBroker();
 
 let writeQueue: Promise<void> = Promise.resolve();
 

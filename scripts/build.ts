@@ -15,8 +15,16 @@ const result = await Bun.build({
   minify: false,
 });
 
-if (!result.success) {
-  for (const log of result.logs) console.error(log);
+const pickerResult = await Bun.build({
+  entrypoints: [join(root, "src/element-picker.ts")],
+  outdir: output,
+  target: "browser",
+  format: "iife",
+  minify: false,
+});
+
+if (!result.success || !pickerResult.success) {
+  for (const log of [...result.logs, ...pickerResult.logs]) console.error(log);
   process.exitCode = 1;
 } else {
   await cp(join(root, "public"), output, { recursive: true });
